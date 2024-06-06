@@ -1,0 +1,48 @@
+def get_letter_grade(average):
+    if average >= 90:
+        return 'A', 4.0
+    elif average >= 80:
+        return 'B', 3.0
+    elif average >= 70:
+        return 'C', 2.0
+    elif average >= 60:
+        return 'D', 1.0
+    else:
+        return 'F', 0.0
+
+def main():
+    print("Student Grade Tracker")
+
+    grades = []
+    subjects = []
+
+    while True:
+        subject = input("Enter the subject (or type 'done' to finish): ")
+        if subject.lower() == 'done':
+            break
+
+        try:
+            grade = float(input(f"Enter the grade for {subject}: "))
+        except ValueError:
+            print("Invalid input. Please enter a numeric grade.")
+            continue
+
+        grades.append(grade)
+        subjects.append(subject)
+
+    if grades:
+        average_grade = sum(grades) / len(grades)
+        letter_grade, gpa = get_letter_grade(average_grade)
+
+        print("\nGrade Summary:")
+        for subject, grade in zip(subjects, grades):
+            print(f"{subject}: {grade}")
+
+        print(f"\nAverage Grade: {average_grade:.2f}")
+        print(f"Letter Grade: {letter_grade}")
+        print(f"GPA: {gpa:.2f}")
+    else:
+        print("No grades entered.")
+
+if __name__ == "__main__":
+    main()
