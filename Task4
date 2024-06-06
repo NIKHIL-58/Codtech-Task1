@@ -1,0 +1,113 @@
+import datetime
+
+class LibraryItem:
+    def __init__(self, title, author, category):
+        self.title = title
+        self.author = author
+        self.category = category
+        self.checked_out = False
+        self.due_date = None
+
+class Library:
+    def __init__(self):
+        self.items = []
+        self.fines = {}
+
+    def add_item(self, title, author, category):
+        new_item = LibraryItem(title, author, category)
+        self.items.append(new_item)
+        print(f"Added '{title}' by {author} to the library.")
+
+    def check_out_item(self, title):
+        for item in self.items:
+            if item.title.lower() == title.lower() and not item.checked_out:
+                item.checked_out = True
+                item.due_date = datetime.datetime.now() + datetime.timedelta(days=14)
+                print(f"Checked out '{title}'. Due date is {item.due_date}.")
+                return
+        print(f"Item '{title}' is not available for checkout.")
+
+    def return_item(self, title):
+        for item in self.items:
+            if item.title.lower() == title.lower() and item.checked_out:
+                item.checked_out = False
+                due_date = item.due_date
+                item.due_date = None
+                if datetime.datetime.now() > due_date:
+                    overdue_days = (datetime.datetime.now() - due_date).days
+                    fine = overdue_days * 1  # Assume $1 fine per overdue day
+                    self.fines[title] = fine
+                    print(f"Returned '{title}'. Overdue by {overdue_days} days. Fine: ${fine}.")
+                else:
+                    print(f"Returned '{title}' on time.")
+                return
+        print(f"Item '{title}' is not checked out.")
+
+    def search_items(self, search_term, search_type):
+        results = []
+        for item in self.items:
+            if search_type == "title" and search_term.lower() in item.title.lower():
+                results.append(item)
+            elif search_type == "author" and search_term.lower() in item.author.lower():
+                results.append(item)
+            elif search_type == "category" and search_term.lower() in item.category.lower():
+                results.append(item)
+        return results
+
+    def display_fines(self):
+        if not self.fines:
+            print("No fines.")
+        else:
+            for title, fine in self.fines.items():
+                print(f"Title: {title}, Fine: ${fine}")
+
+def main():
+    library = Library()
+
+    while True:
+        print("\nLibrary Management System")
+        print("1. Add new item")
+        print("2. Check out item")
+        print("3. Return item")
+        print("4. Search for items")
+        print("5. Display fines")
+        print("6. Exit")
+        choice = input("Enter your choice: ")
+
+        if choice == '1':
+            title = input("Enter title: ")
+            author = input("Enter author: ")
+            category = input("Enter category: ")
+            library.add_item(title, author, category)
+
+        elif choice == '2':
+            title = input("Enter title of item to check out: ")
+            library.check_out_item(title)
+
+        elif choice == '3':
+            title = input("Enter title of item to return: ")
+            library.return_item(title)
+
+        elif choice == '4':
+            search_term = input("Enter search term: ")
+            search_type = input("Search by title, author, or category? ")
+            results = library.search_items(search_term, search_type)
+            if results:
+                for item in results:
+                    status = "Checked out" if item.checked_out else "Available"
+                    print(f"Title: {item.title}, Author: {item.author}, Category: {item.category}, Status: {status}")
+            else:
+                print("No items found.")
+
+        elif choice == '5':
+            library.display_fines()
+
+        elif choice == '6':
+            print("Exiting the program.")
+            break
+
+        else:
+            print("Invalid choice. Please try again.")
+
+if __name__ == "__main__":
+    main()
