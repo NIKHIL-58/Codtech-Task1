@@ -1,0 +1,149 @@
+import tkinter as tk
+from tkinter import messagebox
+
+class InventoryManagementSystem:
+    def __init__(self, root):
+        self.root = root
+        self.root.title("Inventory Management System")
+
+        self.inventory = {}
+
+        # User Authentication
+        self.username = tk.StringVar()
+        self.password = tk.StringVar()
+        self.authenticated = False
+
+        self.create_login_screen()
+
+    def create_login_screen(self):
+        self.clear_screen()
+
+        tk.Label(self.root, text="Username:").grid(row=0, column=0)
+        tk.Entry(self.root, textvariable=self.username).grid(row=0, column=1)
+
+        tk.Label(self.root, text="Password:").grid(row=1, column=0)
+        tk.Entry(self.root, textvariable=self.password, show='*').grid(row=1, column=1)
+
+        tk.Button(self.root, text="Login", command=self.authenticate_user).grid(row=2, column=1)
+
+    def authenticate_user(self):
+        if self.username.get() == "admin" and self.password.get() == "password":
+            self.authenticated = True
+            self.create_main_screen()
+        else:
+            messagebox.showerror("Login Failed", "Invalid username or password")
+
+    def create_main_screen(self):
+        self.clear_screen()
+
+        tk.Button(self.root, text="Add Product", command=self.add_product).grid(row=0, column=0)
+        tk.Button(self.root, text="Edit Product", command=self.edit_product).grid(row=0, column=1)
+        tk.Button(self.root, text="Delete Product", command=self.delete_product).grid(row=0, column=2)
+        tk.Button(self.root, text="View Inventory", command=self.view_inventory).grid(row=0, column=3)
+        tk.Button(self.root, text="Low Stock Alert", command=self.low_stock_alert).grid(row=0, column=4)
+
+    def clear_screen(self):
+        for widget in self.root.winfo_children():
+            widget.destroy()
+
+    def add_product(self):
+        self.clear_screen()
+
+        self.new_product_name = tk.StringVar()
+        self.new_product_quantity = tk.IntVar()
+
+        tk.Label(self.root, text="Product Name:").grid(row=0, column=0)
+        tk.Entry(self.root, textvariable=self.new_product_name).grid(row=0, column=1)
+
+        tk.Label(self.root, text="Quantity:").grid(row=1, column=0)
+        tk.Entry(self.root, textvariable=self.new_product_quantity).grid(row=1, column=1)
+
+        tk.Button(self.root, text="Add", command=self.save_new_product).grid(row=2, column=1)
+
+    def save_new_product(self):
+        name = self.new_product_name.get()
+        quantity = self.new_product_quantity.get()
+
+        if name and quantity >= 0:
+            self.inventory[name] = quantity
+            messagebox.showinfo("Success", "Product added successfully")
+            self.create_main_screen()
+        else:
+            messagebox.showerror("Error", "Invalid data")
+
+    def edit_product(self):
+        self.clear_screen()
+
+        self.edit_product_name = tk.StringVar()
+        self.edit_product_quantity = tk.IntVar()
+
+        tk.Label(self.root, text="Product Name:").grid(row=0, column=0)
+        tk.Entry(self.root, textvariable=self.edit_product_name).grid(row=0, column=1)
+
+        tk.Label(self.root, text="New Quantity:").grid(row=1, column=0)
+        tk.Entry(self.root, textvariable=self.edit_product_quantity).grid(row=1, column=1)
+
+        tk.Button(self.root, text="Edit", command=self.save_edited_product).grid(row=2, column=1)
+
+    def save_edited_product(self):
+        name = self.edit_product_name.get()
+        quantity = self.edit_product_quantity.get()
+
+        if name in self.inventory and quantity >= 0:
+            self.inventory[name] = quantity
+            messagebox.showinfo("Success", "Product updated successfully")
+            self.create_main_screen()
+        else:
+            messagebox.showerror("Error", "Invalid product name or quantity")
+
+    def delete_product(self):
+        self.clear_screen()
+
+        self.delete_product_name = tk.StringVar()
+
+        tk.Label(self.root, text="Product Name:").grid(row=0, column=0)
+        tk.Entry(self.root, textvariable=self.delete_product_name).grid(row=0, column=1)
+
+        tk.Button(self.root, text="Delete", command=self.confirm_delete_product).grid(row=1, column=1)
+
+    def confirm_delete_product(self):
+        name = self.delete_product_name.get()
+
+        if name in self.inventory:
+            del self.inventory[name]
+            messagebox.showinfo("Success", "Product deleted successfully")
+            self.create_main_screen()
+        else:
+            messagebox.showerror("Error", "Product not found")
+
+    def view_inventory(self):
+        self.clear_screen()
+
+        row = 0
+        for product, quantity in self.inventory.items():
+            tk.Label(self.root, text=f"{product}: {quantity}").grid(row=row, column=0)
+            row += 1
+
+        tk.Button(self.root, text="Back", command=self.create_main_screen).grid(row=row, column=0)
+
+    def low_stock_alert(self):
+        self.clear_screen()
+
+        threshold = 5  # Example threshold for low stock
+        low_stock_items = {product: quantity for product, quantity in self.inventory.items() if quantity < threshold}
+
+        if low_stock_items:
+            row = 0
+            for product, quantity in low_stock_items.items():
+                tk.Label(self.root, text=f"{product}: {quantity}").grid(row=row, column=0)
+                row += 1
+        else:
+            tk.Label(self.root, text="No low stock items").grid(row=0, column=0)
+
+        tk.Button(self.root, text="Back", command=self.create_main_screen).grid(row=row, column=0)
+
+
+if __name__ == "__main__":
+    root = tk.Tk()
+    app = InventoryManagementSystem(root)
+    root.mainloop()
